@@ -1162,7 +1162,11 @@ class Net::LDAP::Connection #:nodoc:
 
   def self.wrap_with_ssl(io)
     raise Net::LDAP::LdapError, "OpenSSL is unavailable" unless Net::LDAP::HasOpenSSL
+    store = OpenSSL::X509::Store.new
+    store.add_file('/etc/openldap/certs/tkca.cer')
     ctx = OpenSSL::SSL::SSLContext.new
+    ctx.cert_store = store
+    ctx.ssl_version = :SSLv3
     conn = OpenSSL::SSL::SSLSocket.new(io, ctx)
     conn.connect
     conn.sync_close = true
